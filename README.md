@@ -6,7 +6,7 @@ This is the repostory for the paper "Better LLM reasonign via Dual-Play".
 
 ```
 uv venv pasodoble --python 3.10.16
-source pasodoble
+source pasodoble/bin/activate
 
 git clone https://github.com/HCY123902/PasoDoble.git
 cd PasoDoble
