@@ -380,8 +380,8 @@ check_dependencies() {
     fi
     
     # Check if accelerate config exists
-    if [ ! -f "accelerate_config_6_cards.yaml" ]; then
-        log_warn "accelerate_config_6_cards.yaml not found. Using default accelerate configuration."
+    if [ ! -f "configs/accelerate_config_6_cards.yaml" ]; then
+        log_warn "configs/accelerate_config_6_cards.yaml not found. Using default accelerate configuration."
     fi
     
     log_success "Dependency check completed"
@@ -731,8 +731,8 @@ main() {
     
     # Determine accelerate config argument
     ACCELERATE_CONFIG_ARG=""
-    if [ -f "accelerate_config_6_cards.yaml" ]; then
-        ACCELERATE_CONFIG_ARG="--config_file accelerate_config_6_cards.yaml"
+    if [ -f "configs/accelerate_config_6_cards.yaml" ]; then
+        ACCELERATE_CONFIG_ARG="--config_file configs/accelerate_config_6_cards.yaml"
     fi
     
     export CUBLAS_WORKSPACE_CONFIG=:4096:8

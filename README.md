@@ -32,7 +32,7 @@ Set `SOLVER_MODEL_NAME` and `PROPOSER_MODEL_NAME` to the corresponding Solver an
 
 Online:
 ```
-bash train_online.sh &> history_record/train_online.out &
+bash train_online.sh &> history_record/train_online_4_cards.out &
 ```
 or 
 ```
@@ -41,7 +41,7 @@ bash train_online.sh &> history_record/train_online_8_cards.out &
 
 Offline:
 ```
-bash train_online.sh &> history_record/train_offline.out &
+bash train_online.sh &> history_record/train_offline_4_cards.out &
 ```
 or 
 ```
