@@ -8,7 +8,7 @@ This is the repostory for the paper "Better LLM reasonign via Dual-Play".
 uv venv pasodoble --python 3.10.16
 source pasodoble/bin/activate
 
-git clone https://github.com/HCY123902/PasoDoble.git
+git clone https://github.com/PasoDoble-Cornell/PasoDoble.git
 cd PasoDoble
 uv pip install -r requirements.txt
 
@@ -57,15 +57,27 @@ bash train_online.sh &> history_record/train_offline_8_cards.out &
 
 | **Model** | **Training** | **Download** |
 | :------------: | :------------: | :------------: |
-| PasoDoble Qwen2.5-0.5B | online | [🤗 HuggingFace](https://huggingface.co/YouAreSpecialToMe/Qwen2.5-0.5b-solver-online-new)   |
-| PasoDoble Qwen2.5-0.5B | offline | [🤗 HuggingFace](https://huggingface.co/HCY123902/Qwen2.5-0.5b-solver-offline)   |
-| PasoDoble Qwen2.5-1.5B  | online | [🤗 HuggingFace](https://huggingface.co/YouAreSpecialToMe/Qwen2.5-1.5b-solver-online)   |
-| PasoDoble Qwen2.5-1.5B  | offline | [🤗 HuggingFace](https://huggingface.co/HCY123902/Qwen2.5-1.5b-solver-offline)   |
-| PasoDoble Qwen2.5-3B  | online | [🤗 HuggingFace](https://huggingface.co/YouAreSpecialToMe/Qwen2.5-3b-solver-online)   |
-| PasoDoble Qwen2.5-3B  | offline | [🤗 HuggingFace](https://huggingface.co/YouAreSpecialToMe/Qwen2.5-3b-solver-offline)   |
-| PasoDoble Qwen3-0.6B  | online | [🤗 HuggingFace](https://huggingface.co/YouAreSpecialToMe/Qwen3-0.6b-solver-online)   |
-| PasoDoble Qwen3-0.6B  | offline | [🤗 HuggingFace](https://huggingface.co/HCY123902/Qwen3-0.6b-solver-offline)   |
-| PasoDoble Qwen3-1.7B  | online | [🤗 HuggingFace](https://huggingface.co/YouAreSpecialToMe/Qwen3-1.7b-solver-online)   |
-| PasoDoble Qwen3-1.7B  | offline | [🤗 HuggingFace](https://huggingface.co/YouAreSpecialToMe/Qwen3-1.7b-solver-offline)   |
-| PasoDoble Qwen3-4B  | online | [🤗 HuggingFace](https://huggingface.co/YouAreSpecialToMe/Qwen3-4b-solver-online)   |
-| PasoDoble Qwen3-4B  | offline | [🤗 HuggingFace](https://huggingface.co/YouAreSpecialToMe/Qwen3-4b-solver-offline)   |
+| PasoDoble Qwen2.5-0.5B | online | [🤗 HuggingFace](https://huggingface.co/PasoDoble-Cornell/Qwen2.5-0.5b-solver-online-new)   |
+| PasoDoble Qwen2.5-0.5B | offline | [🤗 HuggingFace](https://huggingface.co/PasoDoble-Cornell/Qwen2.5-0.5b-solver-offline)   |
+| PasoDoble Qwen2.5-1.5B  | online | [🤗 HuggingFace](https://huggingface.co/PasoDoble-Cornell/Qwen2.5-1.5b-solver-online)   |
+| PasoDoble Qwen2.5-1.5B  | offline | [🤗 HuggingFace](https://huggingface.co/PasoDoble-Cornell/Qwen2.5-1.5b-solver-offline)   |
+| PasoDoble Qwen2.5-3B  | online | [🤗 HuggingFace](https://huggingface.co/PasoDoble-Cornell/Qwen2.5-3b-solver-online)   |
+| PasoDoble Qwen2.5-3B  | offline | [🤗 HuggingFace](https://huggingface.co/PasoDoble-Cornell/Qwen2.5-3b-solver-offline)   |
+| PasoDoble Qwen3-0.6B  | online | [🤗 HuggingFace](https://huggingface.co/PasoDoble-Cornell/Qwen3-0.6b-solver-online)   |
+| PasoDoble Qwen3-0.6B  | offline | [🤗 HuggingFace](https://huggingface.co/PasoDoble-Cornell/Qwen3-0.6b-solver-offline)   |
+| PasoDoble Qwen3-1.7B  | online | [🤗 HuggingFace](https://huggingface.co/PasoDoble-Cornell/Qwen3-1.7b-solver-online)   |
+| PasoDoble Qwen3-1.7B  | offline | [🤗 HuggingFace](https://huggingface.co/PasoDoble-Cornell/Qwen3-1.7b-solver-offline)   |
+| PasoDoble Qwen3-4B  | online | [🤗 HuggingFace](https://huggingface.co/PasoDoble-Cornell/Qwen3-4b-solver-online)   |
+| PasoDoble Qwen3-4B  | offline | [🤗 HuggingFace](https://huggingface.co/PasoDoble-Cornell/Qwen3-4b-solver-offline)   |
+
+## Citation
+
+```
+@article{zhang2025pasodoble,
+  title={Better LLM Reasoning via Dual-Play},
+  author={Zhengxin Zhang and Chengyu Huang and Aochong Oliver Li and Claire Cardie},
+  journal={Conference/Journal Name},
+  year={2025},
+  url={https://hcy123902.github.io/PasoDoble}
+}
+```
