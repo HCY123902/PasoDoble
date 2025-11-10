@@ -5,16 +5,16 @@ This is the repostory for the paper "Better LLM reasonign via Dual-Play".
 ## Setup
 
 ```
-uv venv pasodoble --python 3.10.16
-source pasodoble/bin/activate
+conda create -n pasodoble python=3.10.16
+conda activate pasodoble
 
 git clone https://github.com/PasoDoble-Cornell/PasoDoble.git
 cd PasoDoble
-uv pip install -r requirements.txt
+pip install -r requirements.txt
 
 # Install flash-attention separately
 wget https://github.com/Dao-AILab/flash-attention/releases/download/v2.7.4.post1/flash_attn-2.7.4.post1+cu12torch2.6cxx11abiFALSE-cp310-cp310-linux_x86_64.whl
-uv pip install flash_attn-2.7.4.post1+cu12torch2.6cxx11abiFALSE-cp310-cp310-linux_x86_64.whl
+pip install flash_attn-2.7.4.post1+cu12torch2.6cxx11abiFALSE-cp310-cp310-linux_x86_64.whl
 ```
 
 ## Supervised Finetuning
