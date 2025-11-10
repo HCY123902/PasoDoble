@@ -15,6 +15,9 @@ pip install -r requirements.txt
 # Install flash-attention separately
 wget https://github.com/Dao-AILab/flash-attention/releases/download/v2.7.4.post1/flash_attn-2.7.4.post1+cu12torch2.6cxx11abiFALSE-cp310-cp310-linux_x86_64.whl
 pip install flash_attn-2.7.4.post1+cu12torch2.6cxx11abiFALSE-cp310-cp310-linux_x86_64.whl
+
+# (Optional) If your current binutils version is lower than 2.38, upgrade with
+conda install -c conda-forge binutils=2.40
 ```
 
 ## Supervised Finetuning
