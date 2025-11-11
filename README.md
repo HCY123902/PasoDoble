@@ -1,6 +1,6 @@
 # PasoDoble
 
-This is the repostory for the paper "Better LLM reasonign via Dual-Play".
+This is the repostory for the paper "Better LLM reasonign via Dual-Play". Our project page is at https://hcy123902.github.io/PasoDoble
 
 ## Setup
 
