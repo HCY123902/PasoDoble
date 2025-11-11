@@ -47,27 +47,12 @@ fastapi==0.115.8
 fastapi-cli==0.0.7
 fastrlock==0.8.3
 filelock==3.19.1
-flash-attn @ file:https://github.com/Dao-AILab/flash-attention/releases/download/v2.7.4.post1/flash_attn-2.7.4.post1+cu12torch2.6cxx11abiFALSE-cp310-cp310-linux_x86_64.whl
 fonttools==4.60.0
 frozenlist==1.5.0
-fsspec==2025.7.0
 gguf==0.17.1
 gitdb==4.0.12
 gitpython==3.1.44
 gmpy2==2.2.1
-google-api-core==2.24.1
-google-auth==2.38.0
-google-cloud-aiplatform==1.71.1
-google-cloud-bigquery==3.31.0
-google-cloud-core==2.4.3
-google-cloud-resource-manager==1.14.2
-google-cloud-storage==2.19.0
-google-crc32c==1.7.1
-google-resumable-media==2.7.2
-googleapis-common-protos==1.67.0
-grpc-google-iam-v1==0.14.2
-grpcio==1.72.0rc1
-grpcio-status==1.71.0
 h11==0.14.0
 hf-xet==1.1.9
 hjson==3.1.0
@@ -87,7 +72,6 @@ jsonschema-specifications==2024.10.1
 kiwisolver==1.4.9
 lark==1.2.2
 latex2sympy2-extended==1.10.1
-lighteval==0.8.1
 linkify-it-py==2.0.3
 llguidance==0.7.29
 llvmlite==0.44.0
@@ -156,11 +140,9 @@ prometheus-client==0.21.1
 prometheus-fastapi-instrumentator==7.0.2
 propcache==0.2.1
 proto-plus==1.26.0
-protobuf==3.20.3
 psutil==7.0.0
 py-cpuinfo==9.0.0
 py-spy==0.4.0
-pyairports==2.1.1
 pyarrow==19.0.0
 pyasn1==0.6.1
 pyasn1-modules==0.4.1

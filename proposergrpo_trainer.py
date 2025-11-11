@@ -1101,11 +1101,11 @@ class ProposerGRPOTrainer(Trainer):
         mode = "train" if self.model.training else "eval"
 
         prompts = [x["prompt"] for x in inputs]
-        prompts = prompts * (self.num_generations // self.vllm_tensor_parallel_size)
+        prompts = prompts * (self.num_generations // self.accelerator.num_processes)
 
         prompts_text = [maybe_apply_chat_template(example, self.processing_class)["prompt"] for example in inputs]
         
-        prompts_text = prompts_text * (self.num_generations // self.vllm_tensor_parallel_size)
+        prompts_text = prompts_text * (self.num_generations // self.accelerator.num_processes)
 
         prompt_inputs = self.processing_class(
             text=prompts_text, return_tensors="pt", padding=True, padding_side="left", add_special_tokens=False
@@ -2100,16 +2100,16 @@ class ProposerGRPOTrainer(Trainer):
 
         if self.accelerator.is_main_process and self.log_completions:
             if is_rich_available() and self.print_completions:
-                # print_prompt_completions_sample(
-                #     self._textual_logs["prompt"],
-                #     self._textual_logs["completion"],
-                #     self._textual_logs["rewards"],
-                #     self._textual_logs["advantages"],
-                #     self.state.global_step,
-                #     self.num_completions_to_print,
-                # )
+                print_prompt_completions_sample(
+                    self._textual_logs["prompt"],
+                    self._textual_logs["completion"],
+                    self._textual_logs["rewards"],
+                    self._textual_logs["advantages"],
+                    self.state.global_step,
+                    self.num_completions_to_print,
+                )
 
-                print_completions_from_role("Proposer", self.state.global_step, self._textual_logs["prompt"], self._textual_logs["completion"], self._textual_logs["rewards"], self._textual_logs["advantages"])
+                # print_completions_from_role("Proposer", self.state.global_step, self._textual_logs["prompt"], self._textual_logs["completion"], self._textual_logs["rewards"], self._textual_logs["advantages"])
 
             if self.args.report_to and "wandb" in self.args.report_to and wandb.run is not None:
                 import pandas as pd

@@ -18,6 +18,8 @@ pip install flash_attn-2.7.4.post1+cu12torch2.6cxx11abiFALSE-cp310-cp310-linux_x
 
 # (Optional) If your current binutils version is lower than 2.38, upgrade with
 conda install -c conda-forge binutils=2.40
+
+mkdir history_record
 ```
 
 ## Supervised Finetuning
@@ -26,14 +28,14 @@ To create SFT datasets, run
 
 ```
 export OPENAI_API_KEY="{your_api_key}"
-bash generate_sft.sh &> generate_sft_qwen3_14b.out &
+bash generate_sft.sh &> history_record/generate_sft_qwen3_14b.out &
 ```
 
 This creates a SFT dataset JSON object for the Proposer and another dataset JSON object prefixed with "solver_" for the Solver. You can then use libraries such as LLaMAFactory to separately supervise finetune a Proposer and a Solver from the same model of your choice.
 
 ## Training
 
-We tried 2 training settings that are both functional. For models smaller than 3B, we use 4 A100 80G GPUs (2 for vLLM and 2 for trainers). For 3B and 4B models, we use 8 H100 GPUs (2 for vLLM and 6 for trainers). The latter uses more parallel processes for the trainers, but other hyperparameters are kept the same.
+We tried 2 training settings that are both functional. The first setting uses 4 A100 80G GPUs (2 for vLLM and 2 for trainers) and it works for models under 1B, and the second uses 8 A100 GPUs (2 for vLLM and 6 for trainers) and it works for 1B and larger models. The other hyperparameters are kept the same except for the number of parallel processes for the trainer.
 
 Set `SOLVER_MODEL_NAME` and `PROPOSER_MODEL_NAME` to the corresponding Solver and Proposer checkpoints after SFT.
 
@@ -48,13 +50,18 @@ bash train_online.sh &> history_record/train_online_8_cards.out &
 
 Offline:
 ```
-bash train_online.sh &> history_record/train_offline_4_cards.out &
+bash train_offline.sh &> history_record/train_offline_4_cards.out &
 ```
 or 
 ```
-bash train_online.sh &> history_record/train_offline_8_cards.out &
+bash train_offline.sh &> history_record/train_offline_8_cards.out &
 ```
 
+Note: If you want to train with different number of GPUs, make sure the following is true:
+* `CUDA_VISIBLE_DEVICES={corresponding_indices}` when revoking `train_*.py` in `train_*.sh`
+* `PROPOSER_NUM_GENERATIONS` in `train_*.sh` is divisible by `{num_cards}`
+* `num_processes={num_cards}` in `configs/accelerate_config.yaml`
+* `train_batch_size={num_cards}` in `configs/proposer_deepspeed_config.json` and `configs/solver_deepspeed_config.json`.
 
 ## Trained checkpoints
 

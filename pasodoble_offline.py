@@ -11,7 +11,7 @@ from accelerate.utils import DeepSpeedPlugin, gather_object
 import torch.distributed as dist
 from jaccorbsimilarity import DiversityRewardManager
 from question_buffer import QuestionBuffer
-
+from prompt import PROPOSER_USER_PROMPT_WITH_KNOWLEDGE, PROPOSER_USER_PROMPT_WITHOUT_KNOWLEDGE, SOLVER_USER_PROMPT
 from transformers import is_wandb_available
 
 if is_wandb_available():
@@ -20,7 +20,7 @@ if is_wandb_available():
 from prompt import *
 from reward_utils import *
 
-class LlmGan:
+class PasoDoble:
     def __init__(
             self, 
             proposer_model, 
@@ -225,12 +225,12 @@ class LlmGan:
                     self.solver_trainer.clear_textual_logs()
                     if self.rank==0:
                         if skip == "adv":
-                            print("The current batch is skipped for proposer and solver since all_advantages is {}".format(all_advantages))
+                            print("The current batch is skipped for proposer and solver since all_advantages is {}".format(all_advantages.tolist()))
                         elif skip == "pr":
-                            print("The current batch is skipped for solver since passing_rate is {}".format(new_passing_rate))
-                        for q, p, np in zip(all_question_answer_pairs, passing_rate.tolist(), new_passing_rate.tolist()):
-                            print("Question: {}\nAnswer: {}\nPassing rate: {}\nNew passing rate: {}".format(q["question"], q["answer"], p, np))
-                        print("\n\n")
+                            print("The current batch is skipped for solver since passing_rate is {}".format(new_passing_rate.tolist()))
+                        # for q, p, np in zip(all_question_answer_pairs, passing_rate.tolist(), new_passing_rate.tolist()):
+                        #     print("Question: {}\nAnswer: {}\nPassing rate: {}\nNew passing rate: {}".format(q["question"], q["answer"], p, np))
+                        # print("\n\n")
                     continue
                 
                 if self.rank == 0:
@@ -267,7 +267,7 @@ class LlmGan:
                 
                 dist.broadcast_object_list(question_answer_pairs, src=0)
                 
-                tp_qa_size = self.proposer_trainer.num_generations // self.solver_trainer.vllm_tensor_parallel_size    
+                tp_qa_size = self.proposer_trainer.num_generations // self.solver_trainer.accelerator.num_processes
                 tp_qa_slice = slice(self.rank * tp_qa_size, (self.rank+1) * tp_qa_size)
                 question_answer_pairs = question_answer_pairs[tp_qa_slice]
                 
@@ -283,7 +283,7 @@ class LlmGan:
                 # if self.rank == 0:
                 #     self.replay_buffer.update_after_training_batch(batch_data['solver_data']["passing_rate"].tolist())
 
-                passing_rate = batch_data(['solver_data']['passing_rate'])
+                passing_rate = batch_data['solver_data']['passing_rate']
                 if not self.validate_passing_rate(passing_rate):
                     skip = "pr"
 
@@ -293,12 +293,12 @@ class LlmGan:
                     self.solver_trainer.clear_textual_logs()
                     if self.rank==0:
                         if skip == "adv":
-                            print("The current batch is skipped for proposer and solver since all_advantages is {}".format(all_advantages))
+                            print("The current batch is skipped for proposer and solver since all_advantages is {}".format(all_advantages.tolist()))
                         elif skip == "pr":
-                            print("The current batch is skipped for solver since passing_rate is {}".format(new_passing_rate))
-                        for q, p, np in zip(all_question_answer_pairs, passing_rate.tolist(), new_passing_rate.tolist()):
-                            print("Question: {}\nAnswer: {}\nPassing rate: {}\nNew passing rate: {}".format(q["question"], q["answer"], p, np))
-                        print("\n\n")
+                            print("The current batch is skipped for solver since passing_rate is {}".format(new_passing_rate.tolist()))
+                        # for q, p, np in zip(all_question_answer_pairs, passing_rate.tolist(), new_passing_rate.tolist()):
+                        #     print("Question: {}\nAnswer: {}\nPassing rate: {}\nNew passing rate: {}".format(q["question"], q["answer"], p, np))
+                        # print("\n\n")
                     continue
 
                 self.solver_trainer.print_completions = (solver_update_step % 10 == 0)

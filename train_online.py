@@ -2,7 +2,7 @@ import argparse
 
 from datasets import load_dataset
 from trl import GRPOConfig
-from llm_gan_online import LlmGan
+from pasodoble_online import PasoDoble
 from reward_utils import accuracy, rand_accuracy
 from knowledge_base import Knowledgebase
 import os
@@ -113,7 +113,7 @@ def main():
     
     
     proposer_prompt = PROPOSER_PROMPT_WITH_KNOWLEDGE if args.use_knowledge == 1 else PROPOSER_PROMPT_WITHOUT_KNOWLEDGE
-    solver_prompt = SOLVER_PROMPT
+    solver_prompt = SOLVER_SYSTEM_PROMPT
     
     proposer_grpoconfig = GRPOConfig(
         logging_steps=10,
@@ -184,7 +184,7 @@ def main():
         vllm_gpu_memory_utilization=args.vllm_gpu_memory_utilization,
     )
         
-    llm_gan = LlmGan(
+    paso_doble = PasoDoble(
         proposer_model=args.proposer_model_name,
         solver_model=args.solver_model_name,
         proposer_grpoconfig=proposer_grpoconfig,
@@ -205,7 +205,7 @@ def main():
         other_args=args
     )
     
-    llm_gan.train()
+    paso_doble.train()
 
 if __name__=="__main__":
     main()

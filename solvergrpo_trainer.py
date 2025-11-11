@@ -1341,8 +1341,8 @@ class SolverGRPOTrainer(Trainer):
         advantages = advantages[process_slice_adv]
         
         process_slice_pass = slice(
-            self.accelerator.process_index * (self.num_generations // self.vllm_tensor_parallel_size),
-            (self.accelerator.process_index + 1) * (self.num_generations // self.vllm_tensor_parallel_size),
+            self.accelerator.process_index * (len(prompts) // self.num_generations),
+            (self.accelerator.process_index + 1) * (len(prompts) // self.num_generations),
         )
         
         local_passing_rate = passing_rate[process_slice_pass]
@@ -1677,8 +1677,8 @@ class SolverGRPOTrainer(Trainer):
         advantages = advantages[process_slice_adv]
         
         process_slice_pass = slice(
-            self.accelerator.process_index * (self.num_generations // self.vllm_tensor_parallel_size),
-            (self.accelerator.process_index + 1) * (self.num_generations // self.vllm_tensor_parallel_size),
+            self.accelerator.process_index * (len(prompts) // self.num_generations),
+            (self.accelerator.process_index + 1) * (len(prompts) // self.num_generations),
         )
         
         local_passing_rate = passing_rate[process_slice_pass]
@@ -2305,8 +2305,13 @@ class SolverGRPOTrainer(Trainer):
         self.model.training = False
     
     def _get_batch_size(self, inputs: dict) -> int:
+        # for key, value in inputs.items():
+        #     if isinstance(value, torch.Tensor):
+        #         print("key: {}; shape: {}".format(key, value.shape))
+
         for key, value in inputs.items():
             if isinstance(value, torch.Tensor):
+                # print("key: {}; shape: {}".format(key, value.shape))
                 return value.shape[0]
         return 1
 
@@ -2342,16 +2347,22 @@ class SolverGRPOTrainer(Trainer):
         learning_rate = None
         batch_size = self._get_batch_size(inputs)
         
+
+        # print("batch_size: {}".format(batch_size))
+
         # Fix: prevent per_device_samples from being 0
-        per_device_samples = max(1, self.num_generations // self.vllm_tensor_parallel_size)
-        num_valid_questions = math.ceil(batch_size / per_device_samples)
+        per_device_samples = 1
+        num_training_steps = math.ceil(batch_size / per_device_samples)
+
+        # print("per_device_samples: {}".format(per_device_samples))
+        # print("num_training_steps: {}".format(num_training_steps))
         
         # Segmented accumulation configuration
         segment_size = 2  # Update parameters every 4 steps, adjustable based on memory:
                         # segment_size = 2: extremely tight memory
                         # segment_size = 4: recommended setting
                         # segment_size = 8: conservative choice when memory is sufficient
-        total_segments = math.ceil(num_valid_questions / segment_size)
+        total_segments = math.ceil(num_training_steps / segment_size)
         
         # Detect DeepSpeed usage
         is_deepspeed = (hasattr(self.accelerator, 'distributed_type') and 
@@ -2370,7 +2381,7 @@ class SolverGRPOTrainer(Trainer):
         # Fix: predefine variables to prevent undefined values after exceptions
         total_loss_for_logging = 0.0
         valid_steps = 0
-        actual_accumulation_steps = 0
+        actual_training_steps = 0
         average_loss_for_logging = float("nan")
         
         # Segmented accumulation related variables
@@ -2381,7 +2392,7 @@ class SolverGRPOTrainer(Trainer):
         
         try:
             # Gradient accumulation loop
-            for step in range(num_valid_questions):
+            for step in range(num_training_steps):
                 # Get current sub-batch data
                 start_idx = step * per_device_samples
                 end_idx = min(start_idx + per_device_samples, batch_size)
@@ -2416,7 +2427,8 @@ class SolverGRPOTrainer(Trainer):
                 
                 # Key: Calculate actual steps in current segment for proper scaling
                 current_segment_idx = step // segment_size
-                steps_in_current_segment = min(segment_size, num_valid_questions - current_segment_idx * segment_size)
+                steps_in_current_segment = min(segment_size, num_training_steps - current_segment_idx * segment_size)
+                # print("steps_in_current_segment: {}".format(steps_in_current_segment))
                 
                 # Scale loss by actual steps in current segment
                 scaled_loss = solver_loss / steps_in_current_segment
@@ -2440,10 +2452,10 @@ class SolverGRPOTrainer(Trainer):
                 segment_loss += loss_value
                 valid_steps += 1
                 segment_steps += 1
-                actual_accumulation_steps += 1
+                actual_training_steps += 1
                 
                 # Segmented accumulation: update parameters every 4 steps
-                is_segment_end = (step + 1) % segment_size == 0 or step == num_valid_questions - 1
+                is_segment_end = (step + 1) % segment_size == 0 or step == num_training_steps - 1
                 
                 if is_segment_end:
                     # print(f"Segment {current_segment + 1}/{total_segments} completed ({segment_steps} steps)")
@@ -2526,8 +2538,8 @@ class SolverGRPOTrainer(Trainer):
                 return None
             
             # Warning if actual accumulation steps don't match expected
-            if actual_accumulation_steps != num_valid_questions:
-                print(f"Warning: Expected {num_valid_questions} steps, but executed {actual_accumulation_steps}")
+            if actual_training_steps != num_training_steps:
+                print(f"Warning: Expected {num_training_steps} steps, but executed {actual_training_steps}")
             
             # Calculate average loss for logging
             average_loss_for_logging = total_loss_for_logging / valid_steps
@@ -2627,16 +2639,16 @@ class SolverGRPOTrainer(Trainer):
 
         if self.accelerator.is_main_process and self.log_completions:
             if is_rich_available() and self.print_completions:
-                # print_prompt_completions_sample(
-                #     self._textual_logs["prompt"],
-                #     self._textual_logs["completion"],
-                #     self._textual_logs["rewards"],
-                #     self._textual_logs["advantages"],
-                #     self.state.global_step,
-                #     self.num_completions_to_print,
-                # )
+                print_prompt_completions_sample(
+                    self._textual_logs["prompt"],
+                    self._textual_logs["completion"],
+                    self._textual_logs["rewards"],
+                    self._textual_logs["advantages"],
+                    self.state.global_step,
+                    self.num_completions_to_print,
+                )
 
-                print_completions_from_role("Solver", self.state.global_step, self._textual_logs["prompt"], self._textual_logs["completion"], self._textual_logs["rewards"], self._textual_logs["advantages"])
+                # print_completions_from_role("Solver", self.state.global_step, self._textual_logs["prompt"], self._textual_logs["completion"], self._textual_logs["rewards"], self._textual_logs["advantages"])
 
             if self.args.report_to and "wandb" in self.args.report_to and wandb.run is not None:
                 import pandas as pd

@@ -1,1 +1,9 @@
 evaluation/
+history_record/
+output/
+wandb/
+triton/
+ti-cache/
+__pycache__/
+*.out
+*.whl

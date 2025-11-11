@@ -1,6 +1,6 @@
 #!/bin/bash
 exec > >(tee train_a6000.log) 2>&1
-# LLM-GAN Training Script
+# PasoDoble Training Script
 # This script runs the proposer-solver framework training
 
 set -e  # Exit on any error
@@ -225,16 +225,16 @@ export TORCHINDUCTOR_CACHE_DIR=ti-cache
 export TMPDIR=tmp
 export VLLM_ATTENTION_BACKEND=FLASH_ATTN
 export TOKENIZERS_PARALLELISM=false
-export WANDB_PROJECT="llm-gan-training"
+export WANDB_PROJECT="PasoDoble-training"
 
 # Default configuration
-ROPOSER_MODEL_NAME="your_proposer_model_after_sft"
+PROPOSER_MODEL_NAME="your_proposer_sft_checkpoint_name_or_path"
 
-SOLVER_MODEL_NAME="your_solver_model_after_sft"
+SOLVER_MODEL_NAME="your_solver_sft_checkpoint_name_or_path"
 
 PROPOSER_DEEPSPEED_CONFIG="./configs/proposer_deepspeed_config_6_cards.json"
 SOLVER_DEEPSPEED_CONFIG="./configs/solver_deepspeed_config_6_cards.json"
-WANDB_RUN_NAME="llm-gan-$(date +%Y%m%d-%H%M%S)_online"
+WANDB_RUN_NAME="PasoDoble-$(date +%Y%m%d-%H%M%S)_online"
 OUTPUT_DIR_PROPOSER="output/proposer_$(date +%Y%m%d-%H%M%S)_online"
 OUTPUT_DIR_SOLVER="output/solver_$(date +%Y%m%d-%H%M%S)_online"
 MAX_STEPS=2000
@@ -255,7 +255,7 @@ PROPOSER_VLLM_CLIENT_PORT="51218"
 SOLVER_VLLM_SERVER_HOST="127.0.0.6"
 SOLVER_VLLM_SERVER_PORT="8107"
 SOLVER_VLLM_CLIENT_PORT="51219"
-VLLM_TENSOR_PARALLEL_SIZE=2
+VLLM_TENSOR_PARALLEL_SIZE=6
 VLLM_GPU_MEMORY_UTILIZATION=0.95
 
 # Model Configuration
@@ -373,9 +373,9 @@ check_dependencies() {
         log_warn "nvidia-smi not found. GPU support may not be available."
     fi
     
-    # Check if train_wo_replay.py exists
-    if [ ! -f "train_wo_replay.py" ]; then
-        log_error "train_wo_replay.py not found in current directory"
+    # Check if train_online_8_cards.py exists
+    if [ ! -f "train_online.py" ]; then
+        log_error "train_online.py not found in current directory"
         return 1
     fi
     
@@ -485,7 +485,7 @@ start_vllm_servers() {
             --host "$PROPOSER_VLLM_SERVER_HOST" \
             --port "$PROPOSER_VLLM_SERVER_PORT" \
             --gpu-memory-utilization "$VLLM_GPU_MEMORY_UTILIZATION" \
-            &> history_record/dual_grpo_proposer_vllm_online.out &
+            &> history_record/vllm_proposer.out &
         PROPOSER_VLLM_PID=$!
 
         # Start solver VLLM server
@@ -497,30 +497,30 @@ start_vllm_servers() {
             --host "$SOLVER_VLLM_SERVER_HOST" \
             --port "$SOLVER_VLLM_SERVER_PORT" \
             --gpu-memory-utilization "$VLLM_GPU_MEMORY_UTILIZATION" \
-            &> history_record/dual_grpo_solver_vllm_online.out &
+            &> history_record/vllm_solver.out &
         SOLVER_VLLM_PID=$!
         
         log_info "VLLM servers started with PIDs: Proposer=$PROPOSER_VLLM_PID, Solver=$SOLVER_VLLM_PID"
         log_info "Server logs available at:"
-        log_info "  Proposer: history_record/dual_grpo_proposer_vllm.out"
-        log_info "  Solver: history_record/dual_grpo_solver_vllm.out"
+        log_info "  Proposer: history_record/vllm_proposer.out"
+        log_info "  Solver: history_record/vllm_solver.out"
         
         # Wait for servers to be ready (increased timeout and better checking)
         log_info "Waiting for VLLM servers to initialize (this may take several minutes)..."
         
         if ! wait_for_vllm_server "$PROPOSER_VLLM_SERVER_HOST" "$PROPOSER_VLLM_SERVER_PORT" 900; then
             log_error "Proposer VLLM server failed to become ready"
-            log_info "Check the log file for details: history_record/dual_grpo_proposer_vllm.out"
+            log_info "Check the log file for details: history_record/vllm_proposer.out"
             log_info "Last few lines of proposer log:"
-            tail -10 history_record/dual_grpo_proposer_vllm.out 2>/dev/null || log_info "Could not read log file"
+            tail -10 history_record/vllm_proposer.out 2>/dev/null || log_info "Could not read log file"
             return 1
         fi
         
         if ! wait_for_vllm_server "$SOLVER_VLLM_SERVER_HOST" "$SOLVER_VLLM_SERVER_PORT" 300; then
             log_error "Solver VLLM server failed to become ready"
-            log_info "Check the log file for details: history_record/dual_grpo_solver_vllm.out"
+            log_info "Check the log file for details: history_record/vllm_solver.out"
             log_info "Last few lines of solver log:"
-            tail -10 history_record/dual_grpo_solver_vllm.out 2>/dev/null || log_info "Could not read log file"
+            tail -10 history_record/vllm_solver.out 2>/dev/null || log_info "Could not read log file"
             return 1
         fi
         
@@ -647,7 +647,7 @@ done
 
 # Main execution
 main() {
-    log_info "Starting LLM-GAN training script..."
+    log_info "Starting PasoDoble training script..."
     
     # Check dependencies
     if ! check_dependencies; then
@@ -684,7 +684,7 @@ main() {
     # Print configuration
     echo ""
     echo "======================================"
-    echo "LLM-GAN Training Configuration"
+    echo "PasoDoble Training Configuration"
     echo "======================================"
     echo "Proposer Model Name: $PROPOSER_MODEL_NAME"
     echo "Solver Model Name: $SOLVER_MODEL_NAME"
@@ -727,7 +727,7 @@ main() {
     fi
     
     # Run the training script
-    log_info "Starting LLM-GAN training..."
+    log_info "Starting PasoDoble training..."
     
     # Determine accelerate config argument
     ACCELERATE_CONFIG_ARG=""
@@ -739,7 +739,7 @@ main() {
 
     # Execute training command
     NCCL_DEBUG=INFO TORCH_NCCL_TRACE_BUFFER_SIZE="100" CUDA_LAUNCH_BLOCKING=1 CUDA_VISIBLE_DEVICES="2,3,4,5,6,7" accelerate launch $ACCELERATE_CONFIG_ARG \
-        train_wo_replay.py \
+        train_online.py \
         --proposer_model_name "$PROPOSER_MODEL_NAME" \
         --solver_model_name "$SOLVER_MODEL_NAME" \
         --proposer_deepspeed_path "$PROPOSER_DEEPSPEED_CONFIG" \

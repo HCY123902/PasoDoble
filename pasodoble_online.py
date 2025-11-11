@@ -10,7 +10,7 @@ import torch
 from accelerate.utils import DeepSpeedPlugin, gather_object
 import torch.distributed as dist
 from jaccorbsimilarity import DiversityRewardManager
-
+from prompt import PROPOSER_USER_PROMPT_WITH_KNOWLEDGE, PROPOSER_USER_PROMPT_WITHOUT_KNOWLEDGE, SOLVER_USER_PROMPT
 from transformers import is_wandb_available
 
 if is_wandb_available():
@@ -20,7 +20,7 @@ from reward_utils import *
 
 
 
-class LlmGan:
+class PasoDoble:
     def __init__(
             self, 
             proposer_model, 
@@ -217,12 +217,12 @@ class LlmGan:
                 self.solver_trainer.clear_textual_logs()
                 if self.rank==0:
                     if skip == "adv":
-                        print("The current batch is skipped for proposer and solver since all_advantages is {}".format(all_advantages))
+                        print("The current batch is skipped for proposer and solver since all_advantages is {}".format(all_advantages.tolist()))
                     elif skip == "pr":
-                        print("The current batch is skipped for solver since passing_rate is {}".format(new_passing_rate))
-                    for q, p, np in zip(all_question_answer_pairs, passing_rate.tolist(), new_passing_rate.tolist()):
-                        print("Question: {}\nAnswer: {}\nPassing rate: {}\nNew passing rate: {}".format(q["question"], q["answer"], p, np))
-                    print("\n\n")
+                        print("The current batch is skipped for solver since passing_rate is {}".format(new_passing_rate.tolist()))
+                    # for q, p, np in zip(all_question_answer_pairs, passing_rate.tolist(), new_passing_rate.tolist()):
+                    #     print("Question: {}\nAnswer: {}\nPassing rate: {}\nNew passing rate: {}".format(q["question"], q["answer"], p, np))
+                    # print("\n\n")
                 continue
             
             self.proposer_trainer.print_completions = (update_step % 10 == 0)

@@ -104,6 +104,7 @@ if __name__ == "__main__":
     parser.add_argument("--other_suffix", type=str, default="")
     parser.add_argument("--use_knowledge", type=int, default=1, help="Use knowledge or not")
     parser.add_argument("--generate_solver_sft", action="store_true")
+    parser.add_argument("--train_set_size", type=int, default=2800)
 
     args = parser.parse_args()
 
@@ -178,7 +179,7 @@ if __name__ == "__main__":
 
     print("=========Start sampling responses from Proposer=========")
 
-    while valid_count < 2800:
+    while valid_count < args.train_set_size:
         
         prompts = []
         knowledges = []
