@@ -35,15 +35,12 @@ class Knowledgebase:
         return subset["text"]
     
     def get_knowledge_base(self):
-        """返回完整的知识库"""
         return self.knowledge_base
     
     def get_knowledge_base_size(self):
-        """返回知识库的大小"""
         return len(self.knowledge_base)
     
     def get_sample_by_index(self, index):
-        """根据索引获取特定样例"""
         if 0 <= index < len(self.knowledge_base):
             return self.knowledge_base[index]
         else:
