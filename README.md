@@ -86,8 +86,9 @@ Note: If you want to train with different number of GPUs, make sure the followin
 @article{zhang2025pasodoble,
   title={Better LLM Reasoning via Dual-Play},
   author={Zhengxin Zhang and Chengyu Huang and Aochong Oliver Li and Claire Cardie},
-  journal={Conference/Journal Name},
+  eprint={2511.11881},
+  archivePrefix={arXiv},
   year={2025},
-  url={https://hcy123902.github.io/PasoDoble}
+  url={https://arxiv.org/pdf/2511.11881}
 }
 ```
