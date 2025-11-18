@@ -1,6 +1,6 @@
 # Better LLM reasonign via Dual-Play
 
-This is the repostory for the paper ["Better LLM reasonign via Dual-Play"](https://arxiv.org/pdf/2511.11881). Our project page is at https://hcy123902.github.io/PasoDoble
+This is the repostory for the paper ["Better LLM reasonign via Dual-Play"](https://arxiv.org/abs/2511.11881). Our project page is at https://hcy123902.github.io/PasoDoble
 
 ## Setup
 
@@ -89,6 +89,6 @@ Note: If you want to train with different number of GPUs, make sure the followin
   eprint={2511.11881},
   archivePrefix={arXiv},
   year={2025},
-  url={https://arxiv.org/pdf/2511.11881}
+  url={https://arxiv.org/abs/2511.11881}
 }
 ```
